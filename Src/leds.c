@@ -2,19 +2,71 @@
   ******************************************************************************
   * @file    leds.c
   * @author  e.pavlin.si
-  * @version V0.0.0
-  * @date    2016
-  * @brief   LEDs driver.
-  *          ...........
-  *          ....
+  * @brief   LED driver module for left or right LEDS
+	*          Define symbol LEDS_R to compile Right LEDS and LEDS_L to compile 
+	*          for left LEDS
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>http://e.pavlin.si</center></h2>
+  * 
+  * This is free and unencumbered software released into the public domain.
+  * 
+  * Anyone is free to copy, modify, publish, use, compile, sell, or
+  * distribute this software, either in source code form or as a compiled
+  * binary, for any purpose, commercial or non-commercial, and by any
+  * means.
+  * 
+  * In  jurisdictions that recognize copyright laws, the author or authors
+  * of this software dedicate any and all copyright interest in the
+  * software to the public domain. We make this dedication for the benefit
+  * of the public at large and to the detriment of our heirs and
+  * successors. We intend this dedication to be an overt act of
+  * relinquishment in perpetuity of all present and future rights to this
+  * software under copyright law.
+  * 
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  * OTHER DEALINGS IN THE SOFTWARE.
+
+  * For more information, please refer to <http://unlicense.org>
+  *
+  ******************************************************************************
   */
+/* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx.h"                  // Device header
 #include "leds.h"												// LED driver 
 
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
 
+
+/* Private function prototypes -----------------------------------------------*/
+HAL_StatusTypeDef LED_Timer_init(void);
+
+
+/* Private variables ---------------------------------------------------------*/
+
+/* TIM handle declaration */
+TIM_HandleTypeDef    TimHandle;
+
+/* LED image frame buffer */
 static uint16_t LED_frame[8];
 
+/* Address decoder */
 const uint8_t Led_addr_decoder[8] = LED_ADR_DECODE; 
+
+/* Prescaler declaration */
+uint32_t uwPrescalerValue = 0;
+
+/* LED decoder Address counter */
+static uint8_t LED_adr;
 
 void Init_LED(void)
 {
@@ -71,6 +123,9 @@ void Init_LED(void)
 	gpioinit.Pin = LED_A2_PIN;
 	HAL_GPIO_Init(LED_A2_PORT, &gpioinit);
 	
+	LED_adr = 0;
+	
+	//LED_Timer_init();
 	
 }
 
@@ -136,5 +191,84 @@ void LED_refreshV(uint8_t adr)
 }
 
 
+HAL_StatusTypeDef LED_Timer_init(void)
+{
+	/*##-1- Configure the TIM peripheral #######################################*/
+  /* -----------------------------------------------------------------------
+    The TIM2 input clock (TIM2CLK)  is set to APB1 clock (PCLK1)
+      TIM2CLK = PCLK1
+      PCLK1 = HCLK
+      => TIM2CLK = HCLK = SystemCoreClock
+    To get TIM2 counter clock at 10 KHz, the Prescaler is computed as following:
+    Prescaler = (TIM2CLK / TIM2 counter clock) - 1
+    Prescaler = (SystemCoreClock /10 KHz) - 1
 
+    Note:
+     SystemCoreClock variable holds HCLK frequency and is defined in system_stm32f0xx.c file.
+     Each time the core clock (HCLK) changes, user had to update SystemCoreClock
+     variable value. Otherwise, any configuration based on this variable will be incorrect.
+     This variable is updated in three ways:
+      1) by calling CMSIS function SystemCoreClockUpdate()
+      2) by calling HAL API function HAL_RCC_GetSysClockFreq()
+      3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
+  ----------------------------------------------------------------------- */
+
+  /* Compute the prescaler value to have TIMx counter clock equal to 10000 Hz */
+  uwPrescalerValue = (uint32_t)(SystemCoreClock / 10000) - 1;
+  
+	  /* Set TIMx instance */
+  TimHandle.Instance = TIM2;
+
+  /* Initialize TIMx peripheral as follows:
+       + Period = 10000 - 1
+       + Prescaler = (SystemCoreClock/10000) - 1
+       + ClockDivision = 0
+       + Counter direction = Up
+  */
+  TimHandle.Init.Period            = 10000 - 1;
+  TimHandle.Init.Prescaler         = uwPrescalerValue;
+  TimHandle.Init.ClockDivision     = 0;
+  TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+  TimHandle.Init.RepetitionCounter = 0;
+ 
+  if (HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
+  {
+    /* Initialization Error */
+    return HAL_ERROR;
+  }	
+	
+	/*##-2- Start the TIM Base generation in interrupt mode ####################*/
+  /* Start Channel1 */
+  if (HAL_TIM_Base_Start_IT(&TimHandle) != HAL_OK)
+  {
+    /* Starting Error */
+    return HAL_ERROR;
+  }
+	
+	return HAL_OK;
+
+}
+
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM2)
+	{
+//		if (LED_adr<8) 
+//		{
+//			LED_adr ++;
+//		}
+//		else
+//		{
+//			LED_adr = 0;
+//		}
+//		
+//    LED_refreshV(LED_adr);
+	}
+}
 

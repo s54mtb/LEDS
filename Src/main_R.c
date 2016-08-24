@@ -1,52 +1,50 @@
 /**
   ******************************************************************************
-  * File Name          : main.c
-  * Description        : Main program body for LEDS
+  * @file    main_R.c
+  * @author  e.pavlin.si
+  * @brief   Main module for right LEDS
   ******************************************************************************
+  * @attention
   *
-  * COPYRIGHT(c) 2016 STMicroelectronics
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * <h2><center>http://e.pavlin.si</center></h2>
+  * 
+  * This is free and unencumbered software released into the public domain.
+  * 
+  * Anyone is free to copy, modify, publish, use, compile, sell, or
+  * distribute this software, either in source code form or as a compiled
+  * binary, for any purpose, commercial or non-commercial, and by any
+  * means.
+  * 
+  * In  jurisdictions that recognize copyright laws, the author or authors
+  * of this software dedicate any and all copyright interest in the
+  * software to the public domain. We make this dedication for the benefit
+  * of the public at large and to the detriment of our heirs and
+  * successors. We intend this dedication to be an overt act of
+  * relinquishment in perpetuity of all present and future rights to this
+  * software under copyright law.
+  * 
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  * OTHER DEALINGS IN THE SOFTWARE.
+
+  * For more information, please refer to <http://unlicense.org>
   *
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
-
-/* USER CODE BEGIN Includes */
 #include "leds.h"
-
-/* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
-
 I2C_HandleTypeDef hi2c1;
 
-/* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -54,24 +52,16 @@ static void MX_GPIO_Init(void);
 static void MX_ADC_Init(void);
 static void MX_I2C1_Init(void);
 
-/* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
-/* USER CODE END PFP */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 int main(void)
 {
 
-  /* USER CODE BEGIN 1 */
 
 	uint8_t adr;
 	uint32_t i=0;
 	uint16_t v=1;
-  /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
 
@@ -86,15 +76,11 @@ int main(void)
   MX_ADC_Init();
   MX_I2C1_Init();
 
-  /* USER CODE BEGIN 2 */
   Init_LED();
-  /* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+	/* Infinite loop */
   while (1)
   {
-  /* USER CODE END WHILE */
 
 		for (adr=0; adr<8; adr++) LED_refreshV(adr); 
 		i++; 
@@ -105,11 +91,8 @@ int main(void)
 			if (v>(1<<10)) v = 1;
 			for (adr=0; adr<8; adr++) LED_SetBuffer(adr,v);
 		}
-		
-  /* USER CODE BEGIN 3 */
 
   }
-  /* USER CODE END 3 */
 
 }
 
@@ -147,6 +130,7 @@ void SystemClock_Config(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
+
 
 /* ADC init function */
 void MX_ADC_Init(void)
