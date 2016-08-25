@@ -54,10 +54,11 @@ HAL_StatusTypeDef LED_Timer_init(void);
 /* Private variables ---------------------------------------------------------*/
 
 /* TIM handle declaration */
-TIM_HandleTypeDef    TimHandle;
+TIM_HandleTypeDef    LED_TimHandle;
 
-/* LED image frame buffer */
+/* LED image frame buffer and second frame buffer for refresh when changed */
 static uint16_t LED_frame[8];
+static uint16_t LED_2frame[8];
 
 /* Address decoder */
 const uint8_t Led_addr_decoder[8] = LED_ADR_DECODE; 
@@ -68,8 +69,29 @@ uint32_t uwPrescalerValue = 0;
 /* LED decoder Address counter */
 static uint8_t LED_adr;
 
+/* Frame buffer refresh flag, when >0 move contents of LED_2frame to LED_frame*/
+static uint8_t LED_refresh;
+
+
+
+/**
+  * @brief  Init LED pins, buffers and Timer
+  * @param  None
+  * @retval None
+  */
+
 void Init_LED(void)
 {
+	int i; 
+	
+	LED_refresh = 0;
+	
+	for (i=0; i<8; i++)
+	{
+		LED_frame[i] = 0;
+    LED_2frame[i] = 0;		
+	}
+	
 	GPIO_InitTypeDef gpioinit;
 	
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -125,11 +147,16 @@ void Init_LED(void)
 	
 	LED_adr = 0;
 	
-	//LED_Timer_init();
+	LED_Timer_init();
 	
 }
 
 
+/**
+  * @brief  Set hardware address decoder to logical address based on lookup table
+  * @param  adr : Logical address (0...7)
+  * @retval None
+  */
 void LED_set_adr(uint8_t adr)
 {
 	uint8_t hw_addr = Led_addr_decoder[adr];
@@ -142,13 +169,27 @@ void LED_set_adr(uint8_t adr)
 }
 
 
+/**
+  * @brief  Set second frame at address adr to value and set refresh flag
+  * @param  adr : Logical address (0...7)
+  * @param  value: new value at address 
+  * @retval None
+  */
 void LED_SetBuffer(uint8_t adr, uint16_t value)
 {
 	if (adr<8)
-	  LED_frame[adr] = value;
+	{
+	  LED_2frame[adr] = value;
+	}
+	LED_refresh = 1;
 }
 
-uint16_t LED_GetBuffer(uint8_t adr)
+/**
+  * @brief  Get value from main frame buffer 
+  * @param  adr : Logical address (0...7)
+  * @retval Value from frame buffer at address adr
+  */
+uint16_t LED_Get1Buffer(uint8_t adr)
 {
 	if (adr<8)
 	  return LED_frame[adr];
@@ -156,6 +197,25 @@ uint16_t LED_GetBuffer(uint8_t adr)
 		return 0;
 }
 
+/**
+  * @brief  Get value from second frame buffer 
+  * @param  adr : Logical address (0...7)
+  * @retval Value from frame buffer at address adr
+  */
+uint16_t LED_Get2Buffer(uint8_t adr)
+{
+	if (adr<8)
+	  return LED_2frame[adr];
+	else
+		return 0;
+}
+
+
+/**
+  * @brief  Set pin outputs based on frame buffer contents 
+  * @param  val : 16 bit value 
+  * @retval None
+  */
 void LED_SetVertical(uint16_t val)
 {
 	HAL_GPIO_WritePin(LED_MV1_PORT, LED_MV1_PIN, (GPIO_PinState)(val & 0x01) );
@@ -181,16 +241,26 @@ void LED_SetVertical(uint16_t val)
 }
 
 
+/**
+  * @brief  Set vertical values at specified horizontal address
+  * @param  adr : Logical address (0...7)
+  * @retval None
+  */
 void LED_refreshV(uint8_t adr)
 {
 	if (adr<8)
 	{
 		LED_set_adr(adr);
-		LED_SetVertical(LED_GetBuffer(adr));
+		LED_SetVertical(LED_Get1Buffer(adr));
 	}
 }
 
 
+/**
+  * @brief  Init timer 2
+  * @param  None
+  * @retval HAL Status: HAL_OK when Timer properly initialised
+  */
 HAL_StatusTypeDef LED_Timer_init(void)
 {
 	/*##-1- Configure the TIM peripheral #######################################*/
@@ -199,9 +269,9 @@ HAL_StatusTypeDef LED_Timer_init(void)
       TIM2CLK = PCLK1
       PCLK1 = HCLK
       => TIM2CLK = HCLK = SystemCoreClock
-    To get TIM2 counter clock at 10 KHz, the Prescaler is computed as following:
+    To get TIM2 counter clock at 4800 KHz, the Prescaler is computed as following:
     Prescaler = (TIM2CLK / TIM2 counter clock) - 1
-    Prescaler = (SystemCoreClock /10 KHz) - 1
+    Prescaler = (SystemCoreClock /4800 KHz) - 1
 
     Note:
      SystemCoreClock variable holds HCLK frequency and is defined in system_stm32f0xx.c file.
@@ -213,25 +283,25 @@ HAL_StatusTypeDef LED_Timer_init(void)
       3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
   ----------------------------------------------------------------------- */
 
-  /* Compute the prescaler value to have TIMx counter clock equal to 10000 Hz */
-  uwPrescalerValue = (uint32_t)(SystemCoreClock / 10000) - 1;
+  /* Compute the prescaler value to have TIMx counter clock equal to 4.8 MHz */
+  uwPrescalerValue = (uint32_t)(SystemCoreClock / 4800000) - 1;
   
 	  /* Set TIMx instance */
-  TimHandle.Instance = TIM2;
+  LED_TimHandle.Instance = TIM2;
 
   /* Initialize TIMx peripheral as follows:
-       + Period = 10000 - 1
-       + Prescaler = (SystemCoreClock/10000) - 1
+       + Period = 480 - 1   --->  4.8MHz/480 = 10kHz
+       + Prescaler = (SystemCoreClock/4800000) - 1
        + ClockDivision = 0
        + Counter direction = Up
   */
-  TimHandle.Init.Period            = 10000 - 1;
-  TimHandle.Init.Prescaler         = uwPrescalerValue;
-  TimHandle.Init.ClockDivision     = 0;
-  TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  TimHandle.Init.RepetitionCounter = 0;
+  LED_TimHandle.Init.Period            = 480 - 1;   
+  LED_TimHandle.Init.Prescaler         = uwPrescalerValue;
+  LED_TimHandle.Init.ClockDivision     = 0;
+  LED_TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+  LED_TimHandle.Init.RepetitionCounter = 0;
  
-  if (HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
+  if (HAL_TIM_Base_Init(&LED_TimHandle) != HAL_OK)
   {
     /* Initialization Error */
     return HAL_ERROR;
@@ -239,7 +309,7 @@ HAL_StatusTypeDef LED_Timer_init(void)
 	
 	/*##-2- Start the TIM Base generation in interrupt mode ####################*/
   /* Start Channel1 */
-  if (HAL_TIM_Base_Start_IT(&TimHandle) != HAL_OK)
+  if (HAL_TIM_Base_Start_IT(&LED_TimHandle) != HAL_OK)
   {
     /* Starting Error */
     return HAL_ERROR;
@@ -257,18 +327,51 @@ HAL_StatusTypeDef LED_Timer_init(void)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+	uint8_t i;
 	if (htim->Instance == TIM2)
 	{
-//		if (LED_adr<8) 
-//		{
-//			LED_adr ++;
-//		}
-//		else
-//		{
-//			LED_adr = 0;
-//		}
-//		
-//    LED_refreshV(LED_adr);
+		if (LED_adr<8) 
+		{
+			LED_adr ++;
+		}
+		else
+		{
+			LED_adr = 0;
+			if (LED_refresh > 0)  // refresh frame buffer with new content
+			{
+				for (i=0; i<8; i++)
+				{
+					LED_frame[i] = LED_2frame[i];
+				}
+				LED_refresh = 0;
+			}
+		}
+		
+    LED_refreshV(LED_adr);
 	}
 }
 
+
+
+/**
+  * @brief  Set pixel ad coordinate x,y
+  * @param  x : 0...9
+  * @param  y : 0...7
+  * @param  pix : 0 or 1
+  * @retval None
+  */
+void LED_SetPixel(uint8_t x, uint8_t y, uint8_t pix)
+{
+	uint16_t val = LED_Get2Buffer(y);
+	if ((x<10) & (y<8))
+	{
+		if (pix >0)
+		{
+		  LED_SetBuffer(y, val | 1<<x);
+		}
+		else 
+		{
+			LED_SetBuffer(y, val & (~(1<<x)&0x3ffU))  ;
+		}
+	}
+}

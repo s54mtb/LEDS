@@ -58,10 +58,9 @@ static void MX_I2C1_Init(void);
 int main(void)
 {
 
-
-	uint8_t adr;
 	uint32_t i=0;
-	uint16_t v=1;
+	uint8_t x=103,y=104,xo=103,yo=104;
+	int8_t dx=1, dy=1;
 
   /* MCU Configuration----------------------------------------------------------*/
 
@@ -77,21 +76,66 @@ int main(void)
   MX_I2C1_Init();
 
   Init_LED();
+	
+	for (x=0; x<10; x++)
+	  for (y=0; y<8; y++)
+		  {
+				LED_SetPixel(x,y,1);
+				for (i=0; i<50000; i++);
+			}
+			
+	for (x=0; x<10; x++)
+	  for (y=0; y<8; y++)
+		  {
+				LED_SetPixel(x,y,0);
+				for (i=0; i<50000; i++);
+			}
+
+	for (y=0; y<8; y++)
+  	for (x=0; x<10; x++)
+		  {
+				LED_SetPixel(x,y,1);
+				for (i=0; i<50000; i++);
+			}
+			
+	for (y=0; y<8; y++)
+	  for (x=0; x<10; x++)
+		  {
+				LED_SetPixel(x,y,0);
+				for (i=0; i<50000; i++);
+			}
+
+			
+	for (y=0; y<8; y++)
+	  for (x=0; x<10; x++)
+		  {
+				LED_SetPixel(x,y,1);
+				for (i=0; i<150000; i++);
+				LED_SetPixel(x,y,0);
+				for (i=0; i<50000; i++);
+			}
+			
 
 	/* Infinite loop */
   while (1)
   {
-
-		for (adr=0; adr<8; adr++) LED_refreshV(adr); 
 		i++; 
-		if (i>500) 
+		if (i>100000) 
 		{
 			i = 0;
-			v<<=1;
-			if (v>(1<<10)) v = 1;
-			for (adr=0; adr<8; adr++) LED_SetBuffer(adr,v);
+			x+=dx;
+			y+=dy;
+			if (x>109) {dx = -1; x = 109;}
+			if (x<100) {dx = 1; x = 100;}
+			if (y>107) {dy = -1; y = 107;}
+			if (y<100) {dy = 1; y = 100;}
+			for (xo=0; xo<10; xo++)
+				for (yo=0; yo<8; yo++)
+					{
+						LED_SetPixel(xo,yo,0);
+					}
+			LED_SetPixel(x-100,y-100,1);		
 		}
-
   }
 
 }
@@ -206,9 +250,6 @@ void MX_GPIO_Init(void)
 
 }
 
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
 
 #ifdef USE_FULL_ASSERT
 
@@ -221,10 +262,6 @@ void MX_GPIO_Init(void)
    */
 void assert_failed(uint8_t* file, uint32_t line)
 {
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
 
 }
 

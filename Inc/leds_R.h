@@ -54,9 +54,4 @@
 #define LED_ADR_DECODE {0,1,2,3,4,5,6,7}
 
 
-void Init_LED(void);
-void LED_SetBuffer(uint8_t adr, uint16_t value);
-uint16_t LED_GetBuffer(uint8_t adr);
-void LED_refreshV(uint8_t adr);
-
 

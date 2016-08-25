@@ -44,6 +44,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc;
+/* TIM handle declaration */
+extern TIM_HandleTypeDef    LED_TimHandle;
 
 /******************************************************************************/
 /*            Cortex-M0 Processor Interruption and Exception Handlers         */ 
@@ -90,5 +92,14 @@ void ADC1_IRQHandler(void)
 }
 
 
-void TIMx_IRQHandler(void);
+/**
+  * @brief  This function handles TIM interrupt request.
+  * @param  None
+  * @retval None
+  */
+void TIM2_IRQHandler(void)
+{
+  HAL_TIM_IRQHandler(&LED_TimHandle);
+}
+
 
