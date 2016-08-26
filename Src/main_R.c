@@ -41,6 +41,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
+/* Variable used to get converted value */
+__IO uint16_t uhADCxConvertedValue = 0;
+
 I2C_HandleTypeDef hi2c1;
 
 /* Private variables ---------------------------------------------------------*/
@@ -58,7 +61,7 @@ static void MX_I2C1_Init(void);
 int main(void)
 {
 
-	uint32_t i=0;
+	uint32_t i=0,j;
 	uint8_t x=103,y=104,xo=103,yo=104;
 	int8_t dx=1, dy=1;
 
@@ -76,66 +79,94 @@ int main(void)
   MX_I2C1_Init();
 
   Init_LED();
-	
-	for (x=0; x<10; x++)
-	  for (y=0; y<8; y++)
-		  {
-				LED_SetPixel(x,y,1);
-				for (i=0; i<50000; i++);
-			}
-			
-	for (x=0; x<10; x++)
-	  for (y=0; y<8; y++)
-		  {
-				LED_SetPixel(x,y,0);
-				for (i=0; i<50000; i++);
-			}
-
-	for (y=0; y<8; y++)
-  	for (x=0; x<10; x++)
-		  {
-				LED_SetPixel(x,y,1);
-				for (i=0; i<50000; i++);
-			}
-			
-	for (y=0; y<8; y++)
-	  for (x=0; x<10; x++)
-		  {
-				LED_SetPixel(x,y,0);
-				for (i=0; i<50000; i++);
-			}
-
-			
-	for (y=0; y<8; y++)
-	  for (x=0; x<10; x++)
-		  {
-				LED_SetPixel(x,y,1);
-				for (i=0; i<150000; i++);
-				LED_SetPixel(x,y,0);
-				for (i=0; i<50000; i++);
-			}
-			
 
 	/* Infinite loop */
   while (1)
   {
-		i++; 
-		if (i>100000) 
+    xo = x;
+		HAL_ADC_Start(&hadc);
+		HAL_ADC_PollForConversion(&hadc, 10);
+		uhADCxConvertedValue = HAL_ADC_GetValue(&hadc);
+		x = uhADCxConvertedValue / 500;
+		LED_SetPixel(xo,4,0);
+		LED_SetPixel(x,4,1);
+		
+		
+		/*
+		for (i=0; i<100; i++)
 		{
-			i = 0;
-			x+=dx;
-			y+=dy;
-			if (x>109) {dx = -1; x = 109;}
-			if (x<100) {dx = 1; x = 100;}
-			if (y>107) {dy = -1; y = 107;}
-			if (y<100) {dy = 1; y = 100;}
+			LED_setAll();
+			for (j=0; j<200000-i*i; j++);
+			LED_clrAll();
+			for (j=0; j<200000-i*i; j++);
+			
+		}
 			for (xo=0; xo<10; xo++)
 				for (yo=0; yo<8; yo++)
 					{
 						LED_SetPixel(xo,yo,0);
 					}
-			LED_SetPixel(x-100,y-100,1);		
+
+		
+		for (x=0; x<10; x++)
+			for (y=0; y<8; y++)
+				{
+					LED_SetPixel(x,y,1);
+					for (i=0; i<50000; i++);
+				}
+				
+		for (x=0; x<10; x++)
+			for (y=0; y<8; y++)
+				{
+					LED_SetPixel(x,y,0);
+					for (i=0; i<50000; i++);
+				}
+
+		for (y=0; y<8; y++)
+			for (x=0; x<10; x++)
+				{
+					LED_SetPixel(x,y,1);
+					for (i=0; i<500000; i++);
+				}
+				
+		for (y=0; y<8; y++)
+			for (x=0; x<10; x++)
+				{
+					LED_SetPixel(x,y,0);
+					for (i=0; i<50000; i++);
+				}
+
+				
+		for (y=0; y<8; y++)
+			for (x=0; x<10; x++)
+				{
+					LED_SetPixel(x,y,1);
+					for (i=0; i<150000; i++);
+					LED_SetPixel(x,y,0);
+					for (i=0; i<50000; i++);
+				}
+				
+    for (j=0; j<1000*100000; j++)
+		{
+			i++; 
+			if (i>100000) 
+			{
+				i = 0;
+				x+=dx;
+				y+=dy;
+				if (x>109) {dx = -1; x = 109;}
+				if (x<100) {dx = 1; x = 100;}
+				if (y>107) {dy = -1; y = 107;}
+				if (y<100) {dy = 1; y = 100;}
+				for (xo=0; xo<10; xo++)
+					for (yo=0; yo<8; yo++)
+						{
+							LED_SetPixel(xo,yo,0);
+						}
+				LED_SetPixel(x-100,y-100,1);		
+			}
 		}
+		*/
   }
 
 }
@@ -177,7 +208,7 @@ void SystemClock_Config(void)
 
 
 /* ADC init function */
-void MX_ADC_Init(void)
+static void MX_ADC_Init(void)
 {
 
   ADC_ChannelConfTypeDef sConfig;
@@ -192,19 +223,33 @@ void MX_ADC_Init(void)
   hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc.Init.LowPowerAutoWait = DISABLE;
   hadc.Init.LowPowerAutoPowerOff = DISABLE;
-  hadc.Init.ContinuousConvMode = DISABLE;
+  hadc.Init.ContinuousConvMode = ENABLE;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc.Init.DMAContinuousRequests = DISABLE;
   hadc.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  HAL_ADC_Init(&hadc);
+  if (HAL_ADC_Init(&hadc) != HAL_OK)
+  {
+    //Error_Handler();
+  }
 
     /**Configure for the selected ADC regular channel to be converted. 
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
   sConfig.SamplingTime = ADC_SAMPLETIME_13CYCLES_5;
-  HAL_ADC_ConfigChannel(&hadc, &sConfig);
+//  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+//  {
+//    //Error_Handler();
+//  }
+
+    /**Configure for the selected ADC regular channel to be converted. 
+    */
+  sConfig.Channel = ADC_CHANNEL_1;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    //Error_Handler();
+  }
 
 }
 

@@ -17,5 +17,7 @@ void LED_SetBuffer(uint8_t adr, uint16_t value);
 uint16_t LED_GetBuffer(uint8_t adr);
 void LED_refreshV(uint8_t adr);
 void LED_SetPixel(uint8_t x, uint8_t y, uint8_t pix);
+void LED_setAll(void);
+void LED_clrAll(void);
 
 #endif

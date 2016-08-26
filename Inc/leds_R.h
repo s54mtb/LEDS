@@ -44,14 +44,14 @@
 #define LED_A0_PIN  GPIO_PIN_3
 #define LED_A0_PORT GPIOB
 
-#define LED_A1_PIN  GPIO_PIN_4
+#define LED_A1_PIN  GPIO_PIN_5
 #define LED_A1_PORT GPIOB
 
-#define LED_A2_PIN  GPIO_PIN_5
+#define LED_A2_PIN  GPIO_PIN_4
 #define LED_A2_PORT GPIOB
 
 /** Horizontal address decode lookup table */
-#define LED_ADR_DECODE {0,1,2,3,4,5,6,7}
+#define LED_ADR_DECODE {3,0,1,2,4,5,6,7}
 
 
 

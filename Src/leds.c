@@ -56,9 +56,8 @@ HAL_StatusTypeDef LED_Timer_init(void);
 /* TIM handle declaration */
 TIM_HandleTypeDef    LED_TimHandle;
 
-/* LED image frame buffer and second frame buffer for refresh when changed */
+/* LED image frame buffer */
 static uint16_t LED_frame[8];
-static uint16_t LED_2frame[8];
 
 /* Address decoder */
 const uint8_t Led_addr_decoder[8] = LED_ADR_DECODE; 
@@ -68,9 +67,6 @@ uint32_t uwPrescalerValue = 0;
 
 /* LED decoder Address counter */
 static uint8_t LED_adr;
-
-/* Frame buffer refresh flag, when >0 move contents of LED_2frame to LED_frame*/
-static uint8_t LED_refresh;
 
 
 
@@ -84,13 +80,10 @@ void Init_LED(void)
 {
 	int i; 
 	
-	LED_refresh = 0;
-	
 	for (i=0; i<8; i++)
 	{
 		LED_frame[i] = 0;
-    LED_2frame[i] = 0;		
-	}
+	} 
 	
 	GPIO_InitTypeDef gpioinit;
 	
@@ -103,8 +96,8 @@ void Init_LED(void)
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_0|GPIO_PIN_1, GPIO_PIN_RESET);
 	
 	gpioinit.Mode = GPIO_MODE_OUTPUT_PP;
-	gpioinit.Pull = GPIO_NOPULL;
-	gpioinit.Speed = GPIO_SPEED_FREQ_MEDIUM;
+	gpioinit.Pull = GPIO_PULLDOWN;
+	gpioinit.Speed = GPIO_SPEED_FREQ_HIGH;
 	
 	gpioinit.Pin = LED_MV1_PIN;
 	HAL_GPIO_Init(LED_MV1_PORT, &gpioinit);
@@ -179,9 +172,8 @@ void LED_SetBuffer(uint8_t adr, uint16_t value)
 {
 	if (adr<8)
 	{
-	  LED_2frame[adr] = value;
+	  LED_frame[adr] = value;
 	}
-	LED_refresh = 1;
 }
 
 /**
@@ -189,23 +181,10 @@ void LED_SetBuffer(uint8_t adr, uint16_t value)
   * @param  adr : Logical address (0...7)
   * @retval Value from frame buffer at address adr
   */
-uint16_t LED_Get1Buffer(uint8_t adr)
+uint16_t LED_GetBuffer(uint8_t adr)
 {
 	if (adr<8)
 	  return LED_frame[adr];
-	else
-		return 0;
-}
-
-/**
-  * @brief  Get value from second frame buffer 
-  * @param  adr : Logical address (0...7)
-  * @retval Value from frame buffer at address adr
-  */
-uint16_t LED_Get2Buffer(uint8_t adr)
-{
-	if (adr<8)
-	  return LED_2frame[adr];
 	else
 		return 0;
 }
@@ -250,8 +229,9 @@ void LED_refreshV(uint8_t adr)
 {
 	if (adr<8)
 	{
+		LED_SetVertical(0);
 		LED_set_adr(adr);
-		LED_SetVertical(LED_Get1Buffer(adr));
+		LED_SetVertical(LED_GetBuffer(adr));
 	}
 }
 
@@ -327,27 +307,11 @@ HAL_StatusTypeDef LED_Timer_init(void)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	uint8_t i;
 	if (htim->Instance == TIM2)
 	{
-		if (LED_adr<8) 
-		{
-			LED_adr ++;
-		}
-		else
-		{
-			LED_adr = 0;
-			if (LED_refresh > 0)  // refresh frame buffer with new content
-			{
-				for (i=0; i<8; i++)
-				{
-					LED_frame[i] = LED_2frame[i];
-				}
-				LED_refresh = 0;
-			}
-		}
-		
-    LED_refreshV(LED_adr);
+		LED_refreshV(LED_adr);
+		LED_adr ++;
+		if (LED_adr>7) LED_adr = 0;
 	}
 }
 
@@ -362,7 +326,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   */
 void LED_SetPixel(uint8_t x, uint8_t y, uint8_t pix)
 {
-	uint16_t val = LED_Get2Buffer(y);
+	uint16_t val = LED_GetBuffer(y);
+	
 	if ((x<10) & (y<8))
 	{
 		if (pix >0)
@@ -375,3 +340,25 @@ void LED_SetPixel(uint8_t x, uint8_t y, uint8_t pix)
 		}
 	}
 }
+
+
+void LED_clrAll(void)
+{
+	uint8_t a;
+	for (a=0; a<8; a++)
+	{
+		LED_SetBuffer(a,0);
+	}
+}
+
+
+void LED_setAll(void)
+{
+	uint8_t a;
+	for (a=0; a<8; a++)
+	{
+		LED_SetBuffer(a,0x3ffU);
+	}
+}
+
+
