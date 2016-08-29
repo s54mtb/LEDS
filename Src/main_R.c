@@ -61,7 +61,8 @@ static void MX_I2C1_Init(void);
 int main(void)
 {
 
-	uint32_t i=0,j;
+
+	uint32_t i=0,j,k;
 	uint8_t x=103,y=104,xo=103,yo=104;
 	int8_t dx=1, dy=1;
 
@@ -83,29 +84,45 @@ int main(void)
 	/* Infinite loop */
   while (1)
   {
-    xo = x;
+		
+		for (k=0; k<50000; k++)
+		{
+		xo = x;
 		HAL_ADC_Start(&hadc);
 		HAL_ADC_PollForConversion(&hadc, 10);
 		uhADCxConvertedValue = HAL_ADC_GetValue(&hadc);
-		x = uhADCxConvertedValue / 500;
-		LED_SetPixel(xo,4,0);
-		LED_SetPixel(x,4,1);
+		x = (4200 - uhADCxConvertedValue) / 400;
 		
+
+			for (i=0; i<10; i++)
+			{
+					for (j=0; j<8; j++)
+					{
+					if (x>i)
+						LED_SetPixel(i,j,1);
+					else
+						LED_SetPixel(i,j,0);
+					}
+			}
+		}
 		
-		/*
-		for (i=0; i<100; i++)
+    		
+		for (i=0; i<50; i++)
 		{
 			LED_setAll();
-			for (j=0; j<200000-i*i; j++);
+			for (j=0; j<50000-i*i; j++);
 			LED_clrAll();
-			for (j=0; j<200000-i*i; j++);
+			for (j=0; j<100000-i*i; j++);
 			
 		}
+		
+	
 			for (xo=0; xo<10; xo++)
 				for (yo=0; yo<8; yo++)
 					{
 						LED_SetPixel(xo,yo,0);
 					}
+			
 
 		
 		for (x=0; x<10; x++)
@@ -146,10 +163,10 @@ int main(void)
 					for (i=0; i<50000; i++);
 				}
 				
-    for (j=0; j<1000*100000; j++)
+    for (j=0; j<1000*10000; j++)
 		{
 			i++; 
-			if (i>100000) 
+			if (i>10000) 
 			{
 				i = 0;
 				x+=dx;
@@ -166,10 +183,14 @@ int main(void)
 				LED_SetPixel(x-100,y-100,1);		
 			}
 		}
-		*/
+		
   }
 
+
 }
+
+
+
 
 /** System Clock Configuration
 */

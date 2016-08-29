@@ -597,11 +597,6 @@
               <FileType>5</FileType>
               <FilePath>.\Inc\stm32f0xx_hal_conf.h</FilePath>
             </File>
-            <File>
-              <FileName>STM32F0xOPT.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\Src\STM32F0xOPT.s</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -1283,11 +1278,6 @@
               <FileName>stm32f0xx_hal_conf.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Inc\stm32f0xx_hal_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>STM32F0xOPT.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\Src\STM32F0xOPT.s</FilePath>
             </File>
           </Files>
         </Group>
