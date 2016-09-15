@@ -681,6 +681,11 @@
               <FileType>1</FileType>
               <FilePath>.\Src\leds.c</FilePath>
             </File>
+            <File>
+              <FileName>lis3dh_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\lis3dh_driver.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1362,6 +1367,11 @@
               <FileName>leds.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\leds.c</FilePath>
+            </File>
+            <File>
+              <FileName>lis3dh_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\lis3dh_driver.c</FilePath>
             </File>
           </Files>
         </Group>

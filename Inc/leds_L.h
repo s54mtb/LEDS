@@ -51,7 +51,7 @@
 #define LED_A2_PORT GPIOB
 
 /** Horizontal address decode lookup table */
-#define LED_ADR_DECODE {5,4,6,7,2,3,1,0}
+#define LED_ADR_DECODE {3,0,1,2,4,5,6,7}
 
 
 

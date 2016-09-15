@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file    main_L.c
+  * @file    main_R.c
   * @author  e.pavlin.si
-  * @brief   Main module for left LEDS
+  * @brief   Main module for right LEDS
   ******************************************************************************
   * @attention
   *
@@ -34,23 +34,21 @@
   * For more information, please refer to <http://unlicense.org>
   *
   ******************************************************************************
-  *//* Includes ------------------------------------------------------------------*/
+  */
+/* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
-
-/* USER CODE BEGIN Includes */
 #include "leds.h"
-
-/* USER CODE END Includes */
+#include "lis3dh_driver.h"
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
+/* Variable used to get converted value */
+__IO uint16_t uhADCxConvertedValue = 0;
 
 I2C_HandleTypeDef hi2c1;
 
-/* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -58,24 +56,20 @@ static void MX_GPIO_Init(void);
 static void MX_ADC_Init(void);
 static void MX_I2C1_Init(void);
 
-/* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
-/* USER CODE END PFP */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 int main(void)
 {
 
-  /* USER CODE BEGIN 1 */
+	// LIS.....
 
-	uint8_t adr;
-	uint32_t i=0;
-	uint16_t v=1;
-  /* USER CODE END 1 */
+  AxesRaw_t acc;
+	uint8_t response;
+	uint8_t ledx, ledy, ledz;
+	
+	//....LIS
+
 
   /* MCU Configuration----------------------------------------------------------*/
 
@@ -90,32 +84,49 @@ int main(void)
   MX_ADC_Init();
   MX_I2C1_Init();
 
-  /* USER CODE BEGIN 2 */
   Init_LED();
-  /* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+
+
+//// LIS Init
+
+		///// MEMS test
+  //Inizialize MEMS Sensor
+  //set ODR (turn ON device)
+  response = LIS3DH_SetODR(LIS3DH_ODR_100Hz);
+  //set PowerMode 
+  response = LIS3DH_SetMode(LIS3DH_NORMAL);
+  //set Fullscale
+  response = LIS3DH_SetFullScale(LIS3DH_FULLSCALE_2);
+  //set axis Enable
+  response = LIS3DH_SetAxis(LIS3DH_X_ENABLE | LIS3DH_Y_ENABLE | LIS3DH_Z_ENABLE);  
+
+
+
+	/* Infinite loop */
   while (1)
   {
-  /* USER CODE END WHILE */
+	
 
-		for (adr=0; adr<8; adr++) LED_refreshV(adr); 
-		i++; 
-		if (i>500) 
-		{
-			i = 0;
-			v<<=1;
-			if (v>(1<<10)) v = 1;
-			for (adr=0; adr<8; adr++) LED_SetBuffer(adr,v);
-		}
+  //get Acceleration Raw data  
+    response += LIS3DH_GetAccAxesRaw(&acc);
+		LED_clrAll();
 		
-  /* USER CODE BEGIN 3 */
+		ledx = ((acc.AXIS_X + 32767) / 3277);
+		ledy = ((acc.AXIS_Y + 32767) / 3277);
+		ledz = ((acc.AXIS_Z + 32767) / 3277);
+		
+		LED_SetPixel(ledx,2,1);
+		LED_SetPixel(ledy,3,1);
+		LED_SetPixel(ledz,4,1);
+		
+	}
 
-  }
-  /* USER CODE END 3 */
 
 }
+
+
+
 
 /** System Clock Configuration
 */
@@ -152,8 +163,9 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+
 /* ADC init function */
-void MX_ADC_Init(void)
+static void MX_ADC_Init(void)
 {
 
   ADC_ChannelConfTypeDef sConfig;
@@ -168,19 +180,33 @@ void MX_ADC_Init(void)
   hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc.Init.LowPowerAutoWait = DISABLE;
   hadc.Init.LowPowerAutoPowerOff = DISABLE;
-  hadc.Init.ContinuousConvMode = DISABLE;
+  hadc.Init.ContinuousConvMode = ENABLE;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc.Init.DMAContinuousRequests = DISABLE;
   hadc.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  HAL_ADC_Init(&hadc);
+  if (HAL_ADC_Init(&hadc) != HAL_OK)
+  {
+    //Error_Handler();
+  }
 
     /**Configure for the selected ADC regular channel to be converted. 
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
   sConfig.SamplingTime = ADC_SAMPLETIME_13CYCLES_5;
-  HAL_ADC_ConfigChannel(&hadc, &sConfig);
+//  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+//  {
+//    //Error_Handler();
+//  }
+
+    /**Configure for the selected ADC regular channel to be converted. 
+    */
+  sConfig.Channel = ADC_CHANNEL_1;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    //Error_Handler();
+  }
 
 }
 
@@ -226,9 +252,6 @@ void MX_GPIO_Init(void)
 
 }
 
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
 
 #ifdef USE_FULL_ASSERT
 
@@ -241,10 +264,6 @@ void MX_GPIO_Init(void)
    */
 void assert_failed(uint8_t* file, uint32_t line)
 {
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
 
 }
 
