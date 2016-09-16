@@ -67,6 +67,7 @@ int main(void)
   AxesRaw_t acc;
 	uint8_t response;
 	uint8_t ledx, ledy, ledz;
+	uint32_t i=0, j=0, k=0;
 	
 	//....LIS
 
@@ -108,17 +109,38 @@ int main(void)
   {
 	
 
-  //get Acceleration Raw data  
+  //get Acceleration Raw data 
+		
     response += LIS3DH_GetAccAxesRaw(&acc);
 		LED_clrAll();
 		
 		ledx = ((acc.AXIS_X + 32767) / 3277);
 		ledy = ((acc.AXIS_Y + 32767) / 3277);
 		ledz = ((acc.AXIS_Z + 32767) / 3277);
+
+		for(i=0; i<10; i++)
+		if(i<=ledx)
+		LED_SetPixel(i,5,1);
+		else
+		LED_SetPixel(i,5,0);
 		
-		LED_SetPixel(ledx,2,1);
-		LED_SetPixel(ledy,3,1);
-		LED_SetPixel(ledz,4,1);
+		for(j=0; j<10; j++)
+		if(i<=ledy)
+		LED_SetPixel(j,4,1);
+		else
+		LED_SetPixel(j,4,0);
+		
+		for(k=0; k<10; k++)
+		if(k<=ledz)
+		LED_SetPixel(k,3,1);
+		else
+		LED_SetPixel(k,3,0);
+		
+		
+			
+
+		
+
 		
 	}
 
