@@ -12,6 +12,9 @@
   #include "leds_r.h"										// Right board
 #endif
 
+#define LED_COLUMNS  10
+#define LED_ROWS     8
+
 void Init_LED(void);
 void LED_SetBuffer(uint8_t adr, uint16_t value);
 uint16_t LED_GetBuffer(uint8_t adr);

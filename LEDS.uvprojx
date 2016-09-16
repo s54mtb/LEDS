@@ -689,6 +689,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Graphics</GroupName>
+          <Files>
+            <File>
+              <FileName>fonts.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\fonts.c</FilePath>
+            </File>
+            <File>
+              <FileName>graphics.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\graphics.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -1372,6 +1387,21 @@
               <FileName>lis3dh_driver.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\lis3dh_driver.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Graphics</GroupName>
+          <Files>
+            <File>
+              <FileName>fonts.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\fonts.c</FilePath>
+            </File>
+            <File>
+              <FileName>graphics.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\graphics.c</FilePath>
             </File>
           </Files>
         </Group>

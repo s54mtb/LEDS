@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'LEDS' 
- * Target:  'LEDS_L' 
+ * Target:  'LEDS_R' 
  */
 
 #ifndef RTE_COMPONENTS_H

@@ -38,6 +38,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 #include "leds.h"
+#include "graphics.h"
+#include "fonts.h"
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
@@ -65,6 +67,8 @@ int main(void)
 	uint32_t i=0,j,k;
 	uint8_t x=103,y=104,xo=103,yo=104;
 	int8_t dx=1, dy=1;
+	
+		char str[3], ch;
 
   /* MCU Configuration----------------------------------------------------------*/
 
@@ -84,106 +88,116 @@ int main(void)
 	/* Infinite loop */
   while (1)
   {
-		
-		for (k=0; k<50000; k++)
+				str[1] =0;
+		for (ch = 32; ch<0x7f; ch++)
 		{
-		xo = x;
-		HAL_ADC_Start(&hadc);
-		HAL_ADC_PollForConversion(&hadc, 10);
-		uhADCxConvertedValue = HAL_ADC_GetValue(&hadc);
-		x = (4200 - uhADCxConvertedValue) / 400;
-		
-
-			for (i=0; i<10; i++)
-			{
-					for (j=0; j<8; j++)
-					{
-					if (x>i)
-						LED_SetPixel(i,j,1);
-					else
-						LED_SetPixel(i,j,0);
-					}
-			}
-		}
-		
-    		
-		for (i=0; i<50; i++)
-		{
-			LED_setAll();
-			for (j=0; j<50000-i*i; j++);
 			LED_clrAll();
-			for (j=0; j<100000-i*i; j++);
-			
+		  str[0] = ch;
+		  graphics_text(0,0,FONT_FIVE_DOT,str);
+			for (i=0; i<1000000; i++);
 		}
-		
-	
-			for (xo=0; xo<10; xo++)
-				for (yo=0; yo<8; yo++)
-					{
-						LED_SetPixel(xo,yo,0);
-					}
-			
+	  
 
 		
-		for (x=0; x<10; x++)
-			for (y=0; y<8; y++)
-				{
-					LED_SetPixel(x,y,1);
-					for (i=0; i<50000; i++);
-				}
-				
-		for (x=0; x<10; x++)
-			for (y=0; y<8; y++)
-				{
-					LED_SetPixel(x,y,0);
-					for (i=0; i<50000; i++);
-				}
+//		for (k=0; k<50000; k++)
+//		{
+//		xo = x;
+//		HAL_ADC_Start(&hadc);
+//		HAL_ADC_PollForConversion(&hadc, 10);
+//		uhADCxConvertedValue = HAL_ADC_GetValue(&hadc);
+//		x = (4200 - uhADCxConvertedValue) / 400;
+//		
 
-		for (y=0; y<8; y++)
-			for (x=0; x<10; x++)
-				{
-					LED_SetPixel(x,y,1);
-					for (i=0; i<500000; i++);
-				}
-				
-		for (y=0; y<8; y++)
-			for (x=0; x<10; x++)
-				{
-					LED_SetPixel(x,y,0);
-					for (i=0; i<50000; i++);
-				}
+//			for (i=0; i<10; i++)
+//			{
+//					for (j=0; j<8; j++)
+//					{
+//					if (x>i)
+//						LED_SetPixel(i,j,1);
+//					else
+//						LED_SetPixel(i,j,0);
+//					}
+//			}
+//		}
+//		
+//    		
+//		for (i=0; i<50; i++)
+//		{
+//			LED_setAll();
+//			for (j=0; j<50000-i*i; j++);
+//			LED_clrAll();
+//			for (j=0; j<100000-i*i; j++);
+//			
+//		}
+//		
+//	
+//			for (xo=0; xo<10; xo++)
+//				for (yo=0; yo<8; yo++)
+//					{
+//						LED_SetPixel(xo,yo,0);
+//					}
+//			
 
-				
-		for (y=0; y<8; y++)
-			for (x=0; x<10; x++)
-				{
-					LED_SetPixel(x,y,1);
-					for (i=0; i<150000; i++);
-					LED_SetPixel(x,y,0);
-					for (i=0; i<50000; i++);
-				}
-				
-    for (j=0; j<1000*10000; j++)
-		{
-			i++; 
-			if (i>10000) 
-			{
-				i = 0;
-				x+=dx;
-				y+=dy;
-				if (x>109) {dx = -1; x = 109;}
-				if (x<100) {dx = 1; x = 100;}
-				if (y>107) {dy = -1; y = 107;}
-				if (y<100) {dy = 1; y = 100;}
-				for (xo=0; xo<10; xo++)
-					for (yo=0; yo<8; yo++)
-						{
-							LED_SetPixel(xo,yo,0);
-						}
-				LED_SetPixel(x-100,y-100,1);		
-			}
-		}
-		
+//		
+//		for (x=0; x<10; x++)
+//			for (y=0; y<8; y++)
+//				{
+//					LED_SetPixel(x,y,1);
+//					for (i=0; i<50000; i++);
+//				}
+//				
+//		for (x=0; x<10; x++)
+//			for (y=0; y<8; y++)
+//				{
+//					LED_SetPixel(x,y,0);
+//					for (i=0; i<50000; i++);
+//				}
+
+//		for (y=0; y<8; y++)
+//			for (x=0; x<10; x++)
+//				{
+//					LED_SetPixel(x,y,1);
+//					for (i=0; i<500000; i++);
+//				}
+//				
+//		for (y=0; y<8; y++)
+//			for (x=0; x<10; x++)
+//				{
+//					LED_SetPixel(x,y,0);
+//					for (i=0; i<50000; i++);
+//				}
+
+//				
+//		for (y=0; y<8; y++)
+//			for (x=0; x<10; x++)
+//				{
+//					LED_SetPixel(x,y,1);
+//					for (i=0; i<150000; i++);
+//					LED_SetPixel(x,y,0);
+//					for (i=0; i<50000; i++);
+//				}
+//				
+//    for (j=0; j<1000*10000; j++)
+//		{
+//			i++; 
+//			if (i>10000) 
+//			{
+//				i = 0;
+//				x+=dx;
+//				y+=dy;
+//				if (x>109) {dx = -1; x = 109;}
+//				if (x<100) {dx = 1; x = 100;}
+//				if (y>107) {dy = -1; y = 107;}
+//				if (y<100) {dy = 1; y = 100;}
+//				for (xo=0; xo<10; xo++)
+//					for (yo=0; yo<8; yo++)
+//						{
+//							LED_SetPixel(xo,yo,0);
+//						}
+//				LED_SetPixel(x-100,y-100,1);		
+//			}
+//		}
+//		
   }
 
 

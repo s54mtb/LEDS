@@ -39,6 +39,8 @@
 #include "stm32f0xx_hal.h"
 #include "leds.h"
 #include "lis3dh_driver.h"
+#include "graphics.h"
+#include "fonts.h"
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
@@ -68,6 +70,8 @@ int main(void)
 	uint8_t response;
 	uint8_t ledx, ledy, ledz;
 	uint32_t i=0, j=0, k=0;
+	
+	char str[3], ch;
 	
 	//....LIS
 
@@ -103,38 +107,47 @@ int main(void)
   response = LIS3DH_SetAxis(LIS3DH_X_ENABLE | LIS3DH_Y_ENABLE | LIS3DH_Z_ENABLE);  
 
 
+   
 
 	/* Infinite loop */
   while (1)
   {
-	
+		str[1] =0;
+		for (ch = 32; ch<0x7f; ch++)
+		{
+			LED_clrAll();
+		  str[0] = ch;
+		  graphics_text(0,1,FONT_SEVEN_DOT,str);
+			for (i=0; i<1000000; i++);
+		}
+	  
 
   //get Acceleration Raw data 
 		
-    response += LIS3DH_GetAccAxesRaw(&acc);
-		LED_clrAll();
+//    response += LIS3DH_GetAccAxesRaw(&acc);
+//		LED_clrAll();
 		
-		ledx = ((acc.AXIS_X + 32767) / 3277);
-		ledy = ((acc.AXIS_Y + 32767) / 3277);
-		ledz = ((acc.AXIS_Z + 32767) / 3277);
+//		ledx = ((acc.AXIS_X + 32767) / 3277);
+//		ledy = ((acc.AXIS_Y + 32767) / 3277);
+//		ledz = ((acc.AXIS_Z + 32767) / 3277);
 
-		for(i=0; i<10; i++)
-		if(i<=ledx)
-		LED_SetPixel(i,5,1);
-		else
-		LED_SetPixel(i,5,0);
-		
-		for(j=0; j<10; j++)
-		if(i<=ledy)
-		LED_SetPixel(j,4,1);
-		else
-		LED_SetPixel(j,4,0);
-		
-		for(k=0; k<10; k++)
-		if(k<=ledz)
-		LED_SetPixel(k,3,1);
-		else
-		LED_SetPixel(k,3,0);
+//		for(i=0; i<10; i++)
+//		if(i<=ledx)
+//		LED_SetPixel(i,5,1);
+//		else
+//		LED_SetPixel(i,5,0);
+//		
+//		for(j=0; j<10; j++)
+//		if(i<=ledy)
+//		LED_SetPixel(j,4,1);
+//		else
+//		LED_SetPixel(j,4,0);
+//		
+//		for(k=0; k<10; k++)
+//		if(k<=ledz)
+//		LED_SetPixel(k,3,1);
+//		else
+//		LED_SetPixel(k,3,0);
 		
 		
 			

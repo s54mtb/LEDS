@@ -328,7 +328,7 @@ void LED_SetPixel(uint8_t x, uint8_t y, uint8_t pix)
 {
 	uint16_t val = LED_GetBuffer(y);
 	
-	if ((x<10) & (y<8))
+	if ((x<LED_COLUMNS) & (y<LED_ROWS))
 	{
 		if (pix >0)
 		{
@@ -345,7 +345,7 @@ void LED_SetPixel(uint8_t x, uint8_t y, uint8_t pix)
 void LED_clrAll(void)
 {
 	uint8_t a;
-	for (a=0; a<8; a++)
+	for (a=0; a<LED_ROWS; a++)
 	{
 		LED_SetBuffer(a,0);
 	}
@@ -355,7 +355,7 @@ void LED_clrAll(void)
 void LED_setAll(void)
 {
 	uint8_t a;
-	for (a=0; a<8; a++)
+	for (a=0; a<LED_ROWS; a++)
 	{
 		LED_SetBuffer(a,0x3ffU);
 	}
