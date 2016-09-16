@@ -46,8 +46,8 @@
 /* select desired fonts. (Simply comment out those not needed)   */
 /* --------------------------------------------------------------*/
 #define EN_FIVE_DOT
-//#define EN_SIX_DOT
-//#define EN_SEVEN_DOT
+#define EN_SIX_DOT
+#define EN_SEVEN_DOT
 //#define EN_NINE_DOT
 /* --------------------------------------------------------------*/
 /* --------------------------------------------------------------*/

@@ -54,7 +54,7 @@ void graphics_Glyph(unsigned char left, unsigned char top,
 	{
 		for (y=0; y<height; y++)
 		{
-			glyph_idx = (x>>8)*width + y;
+			glyph_idx = (x / width) + y*store_width;
 			b = glyph_scan[glyph_idx];
 			bitmask = 1<<(7-(x % 8));
 			if (b & bitmask)
@@ -99,23 +99,23 @@ void graphics_text(unsigned char left, unsigned char top, unsigned char font, co
 
 		glyph_ptr = fonts[font].glyph_table + ((unsigned int)glyph * (unsigned int)store_width * (unsigned int)height);
 
-		/* range check / limit things here */
-		if(x > LED_COLUMNS-1)
-		{
-			x = LED_COLUMNS-1;
-		}
-		if((x + width) > LED_COLUMNS)
-		{
-			width = LED_COLUMNS - x + 1;
-		}
-		if(top > LED_ROWS-1)
-		{
-			top = LED_ROWS-1;
-		}
-		if((top + height) > LED_ROWS)
-		{
-			height = LED_ROWS - top + 1;
-		}
+//		/* range check / limit things here */
+//		if(x > LED_COLUMNS-1)
+//		{
+//			x = LED_COLUMNS-1;
+//		}
+//		if((x + width) > LED_COLUMNS)
+//		{
+//			width = LED_COLUMNS - x + 1;
+//		}
+//		if(top > LED_ROWS-1)
+//		{
+//			top = LED_ROWS-1;
+//		}
+//		if((top + height) > LED_ROWS)
+//		{
+//			height = LED_ROWS - top + 1;
+//		}
 
 		graphics_Glyph(x,top,width,height,glyph_ptr,store_width);  /* plug symbol into buffer */
 		

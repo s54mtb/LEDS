@@ -117,7 +117,7 @@ int main(void)
 		{
 			LED_clrAll();
 		  str[0] = ch;
-		  graphics_text(0,1,FONT_SEVEN_DOT,str);
+		  graphics_text(0,0,FONT_SIX_DOT,str);
 			for (i=0; i<1000000; i++);
 		}
 	  
