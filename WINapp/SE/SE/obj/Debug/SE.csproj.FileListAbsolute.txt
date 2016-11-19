@@ -1,0 +1,8 @@
+D:\!work\xprojects\Gal\ocala\app\SE\SE\bin\Debug\SE.exe
+D:\!work\xprojects\Gal\ocala\app\SE\SE\bin\Debug\SE.pdb
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Debug\SE.csprojResolveAssemblyReference.cache
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Debug\SE.Form1.resources
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Debug\SE.Properties.Resources.resources
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Debug\SE.csproj.GenerateResource.Cache
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Debug\SE.exe
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Debug\SE.pdb

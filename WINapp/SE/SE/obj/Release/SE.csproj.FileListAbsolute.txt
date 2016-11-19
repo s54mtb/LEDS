@@ -1,0 +1,7 @@
+D:\!work\xprojects\Gal\ocala\app\SE\SE\bin\Release\SE.exe
+D:\!work\xprojects\Gal\ocala\app\SE\SE\bin\Release\SE.pdb
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Release\SE.Form1.resources
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Release\SE.Properties.Resources.resources
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Release\SE.csproj.GenerateResource.Cache
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Release\SE.exe
+D:\!work\xprojects\Gal\ocala\app\SE\SE\obj\Release\SE.pdb
